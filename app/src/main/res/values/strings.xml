@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">Example_MVP</string>
+    <string name="msg_cant_add">Can\'t add</string>
+    <string name="msg_cant_delete">Can\'t delete</string>
+    <string name="msg_cant_update">Can\'t update</string>
+    <string name="msg_cant_get">Can\'t get task</string>
+    <string name="hint_title">Title</string>
+    <string name="hint_message">Message</string>
+    <string name="action_add">Add</string>
+    <string name="action_cancel">Cancel</string>
+</resources>
