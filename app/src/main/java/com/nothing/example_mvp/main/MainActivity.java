@@ -1,19 +1,17 @@
 package com.nothing.example_mvp.main;
 
 import android.content.DialogInterface;
+import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
 import com.nothing.example_mvp.R;
 import com.nothing.example_mvp.data.model.Task;
-import com.nothing.example_mvp.data.source.TaskDataSource;
 import com.nothing.example_mvp.data.source.TaskRepository;
 import com.nothing.example_mvp.data.source.local.TaskLocalDataSource;
 import com.nothing.example_mvp.data.source.remote.TaskRemoteDataSource;
@@ -35,11 +33,11 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
         mPresenter = new MainPresenter(new TaskRepository(new TaskLocalDataSource(this),
             new TaskRemoteDataSource()), this);
         mTaskList = new ArrayList<>();
-        mPresenter.getTasks();
         mRecyclerTask = (RecyclerView) findViewById(R.id.recycler_task);
+        mTaskAdapter = new TaskAdapter(mTaskList, mPresenter, mRecyclerTask);
         mRecyclerTask.setLayoutManager(new LinearLayoutManager(this));
-        mTaskAdapter = new TaskAdapter(mTaskList, mPresenter);
         mRecyclerTask.setAdapter(mTaskAdapter);
+        mPresenter.getTasks();
         findViewById(R.id.button_add).setOnClickListener(this);
     }
 
@@ -66,23 +64,25 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
     }
 
     @Override
-    public void onFinishSuccess() {
-        // TODO: 7/9/2017
+    public void onFinishSuccess(List<Task> taskList) {
+        mTaskList = taskList;
+        mTaskAdapter.replaceData(taskList);
     }
 
     @Override
     public void onFinishFail() {
-        // TODO: 7/9/2017
+        Toast.makeText(this, R.string.msg_finish_fail, Toast.LENGTH_SHORT).show();
     }
 
     @Override
-    public void onUpdateSuccess() {
-        // TODO: 7/9/2017
+    public void onUpdateSuccess(List<Task> taskList) {
+        mTaskList = taskList;
+        mTaskAdapter.replaceData(taskList);
     }
 
     @Override
     public void onUpdateFail() {
-        // TODO: 7/9/2017
+        Toast.makeText(this, R.string.msg_cant_update, Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -127,5 +127,11 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
             default:
                 break;
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        mPresenter.detachView();
+        super.onDestroy();
     }
 }

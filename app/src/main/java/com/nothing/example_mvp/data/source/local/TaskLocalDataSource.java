@@ -22,8 +22,9 @@ public class TaskLocalDataSource extends TaskDbHelper implements TaskDataSource 
         ContentValues values = new ContentValues();
         values.put(TaskContract.TaskEntry.COLUMN_NAME_TITLE, task.getName());
         values.put(TaskContract.TaskEntry.COLUMN_NAME_DESCRIPTION, task.getMessage());
+        values.put(TaskContract.TaskEntry.COLUMN_NAME_FINISH, 0);
         long result = db.insert(TaskContract.TaskEntry.TABLE_NAME, null, values);
-        if (result != -1) {
+        if (result > 0) {
             callback.onSuccess((int) result);
         } else
             callback.onFail();
@@ -64,7 +65,8 @@ public class TaskLocalDataSource extends TaskDbHelper implements TaskDataSource 
         String[] columns = {
             TaskContract.TaskEntry._ID,
             TaskContract.TaskEntry.COLUMN_NAME_TITLE,
-            TaskContract.TaskEntry.COLUMN_NAME_DESCRIPTION
+            TaskContract.TaskEntry.COLUMN_NAME_DESCRIPTION,
+            TaskContract.TaskEntry.COLUMN_NAME_FINISH
         };
         String selection = TaskContract.TaskEntry._ID + " = ?";
         String[] selectionArgs = {String.valueOf(id)};
@@ -79,7 +81,10 @@ public class TaskLocalDataSource extends TaskDbHelper implements TaskDataSource 
                 c.getString(c.getColumnIndex(TaskContract.TaskEntry.COLUMN_NAME_TITLE));
             String description =
                 c.getString(c.getColumnIndex(TaskContract.TaskEntry.COLUMN_NAME_DESCRIPTION));
-            task = new Task(taskId, title, description);
+            int finish = c.getInt(c.getColumnIndex(TaskContract.TaskEntry.COLUMN_NAME_FINISH));
+            boolean isFinish;
+            isFinish = (finish != 0);
+            task = new Task(taskId, title, description, isFinish);
         }
         if (c != null) {
             c.close();
@@ -99,19 +104,27 @@ public class TaskLocalDataSource extends TaskDbHelper implements TaskDataSource 
         String[] columns = {
             TaskContract.TaskEntry._ID,
             TaskContract.TaskEntry.COLUMN_NAME_TITLE,
-            TaskContract.TaskEntry.COLUMN_NAME_DESCRIPTION
+            TaskContract.TaskEntry.COLUMN_NAME_DESCRIPTION,
+            TaskContract.TaskEntry.COLUMN_NAME_FINISH
         };
         Cursor c =
-            db.query(TaskContract.TaskEntry.TABLE_NAME, columns, null, null, null, null, null);
-        if (c != null && c.getCount() > 0) {
-            c.moveToFirst();
-            int taskId = c.getInt(c.getColumnIndex(TaskContract.TaskEntry._ID));
-            String title =
-                c.getString(c.getColumnIndex(TaskContract.TaskEntry.COLUMN_NAME_TITLE));
-            String description =
-                c.getString(c.getColumnIndex(TaskContract.TaskEntry.COLUMN_NAME_DESCRIPTION));
-            Task task = new Task(taskId, title, description);
-            tasks.add(task);
+            db.query(TaskContract.TaskEntry.TABLE_NAME, columns, null, null, null, null, null,
+                null);
+        if (c != null && c.moveToFirst()) {
+            do {
+                int taskId = c.getInt(c.getColumnIndex(TaskContract.TaskEntry._ID));
+                String title =
+                    c.getString(c.getColumnIndex(TaskContract.TaskEntry.COLUMN_NAME_TITLE));
+                String description =
+                    c.getString(c.getColumnIndex(TaskContract.TaskEntry.COLUMN_NAME_DESCRIPTION));
+                int finish = c.getInt(c.getColumnIndex(TaskContract.TaskEntry.COLUMN_NAME_TITLE));
+                boolean isFinish = false;
+                if (finish != 0) {
+                    isFinish = true;
+                }
+                Task task = new Task(taskId, title, description, isFinish);
+                tasks.add(task);
+            } while (c.moveToNext());
         }
         if (c != null) {
             c.close();
@@ -122,5 +135,20 @@ public class TaskLocalDataSource extends TaskDbHelper implements TaskDataSource 
         } else {
             callback.onExistedList(tasks);
         }
+    }
+
+    @Override
+    public void finishTask(int id, boolean isFinish, Callback<Integer> callback) {
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues values = new ContentValues();
+        String whereClause = TaskContract.TaskEntry._ID + "=?";
+        String[] whereClauseArgs = {String.valueOf(id)};
+        values.put(TaskContract.TaskEntry.COLUMN_NAME_FINISH, isFinish ? 1 : 0);
+        int result = db.update(TaskContract.TaskEntry.TABLE_NAME, values, whereClause,
+            whereClauseArgs);
+        db.close();
+        if (result > 0) {
+            callback.onSuccess(result);
+        } else callback.onFail();
     }
 }

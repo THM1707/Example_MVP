@@ -18,7 +18,9 @@ public class TaskDbHelper extends SQLiteOpenHelper {
         + TaskContract.TaskEntry.COLUMN_NAME_TITLE
         + " TEXT, "
         + TaskContract.TaskEntry.COLUMN_NAME_DESCRIPTION
-        + " TEXT)";
+        + " TEXT, "
+        + TaskContract.TaskEntry.COLUMN_NAME_FINISH
+        + " INTEGER)";
     private static String COMMAND_DROP_TASK_TABLE = "DROP_TABLE " + TaskContract.TaskEntry
         .TABLE_NAME;
 
