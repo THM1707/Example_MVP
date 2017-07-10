@@ -10,9 +10,9 @@ public interface MainContract {
         void onAddFail();
         void onDeleteSuccess(List<Task> taskList);
         void onDeleteFail();
-        void onFinishSuccess();
+        void onFinishSuccess(List<Task> taskList);
         void onFinishFail();
-        void onUpdateSuccess();
+        void onUpdateSuccess(List<Task> taskList);
         void onUpdateFail();
         void onListExist(List<Task> tasks);
         void onListEmpty();
@@ -23,9 +23,10 @@ public interface MainContract {
     interface Presenter {
         void addTask(List<Task> taskList, String taskName, String taskMsg);
         void deleteTask(List<Task> taskList, int id);
-        void finishTask(String taskName);
-        void updateTask(int id, String taskName, String taskMsg);
+        void finishTask(List<Task> taskList, int id, boolean isFinish);
+        void updateTask(List<Task> taskList, int id, String taskName, String taskMsg);
         void getTask(int id);
         void getTasks();
+        void detachView();
     }
 }

@@ -65,4 +65,10 @@ public class TaskRepository implements TaskDataSource {
             }
         });
     }
+
+    @Override
+    public void finishTask(int id, boolean isFinish, Callback<Integer> callback) {
+        mTaskLocalDataSource.finishTask(id, isFinish, callback);
+        mTaskRemoteDataSource.finishTask(id, isFinish, callback);
+    }
 }

@@ -58,16 +58,38 @@ public class MainPresenter implements MainContract.Presenter {
     }
 
     @Override
-    public void finishTask(String taskName) {
+    public void finishTask(final List<Task> taskList, final int id, final boolean isFinish) {
+        mTaskRepository.finishTask(id, isFinish, new TaskDataSource.Callback<Integer>() {
+            @Override
+            public void onSuccess(Integer data) {
+                for (Task t : taskList) {
+                    if (t.getId() == id) {
+                        t.setFinish(isFinish);
+                    }
+                }
+                mView.onFinishSuccess(taskList);
+            }
+
+            @Override
+            public void onFail() {
+                mView.onFinishFail();
+            }
+        });
     }
 
     @Override
-    public void updateTask(int id, String taskName, String taskMsg) {
+    public void updateTask(final List<Task> taskList, final int id, final String taskName,
+                           final String taskMsg) {
         mTaskRepository.updateTask(id, taskName, taskMsg, new TaskDataSource.Callback<Integer>() {
             @Override
             public void onSuccess(Integer data) {
-                // TODO: 7/8/2017
-                mView.onUpdateSuccess();
+                for (Task t : taskList) {
+                    if (t.getId() == id) {
+                        t.setMessage(taskMsg);
+                        t.setName(taskName);
+                    }
+                }
+                mView.onUpdateSuccess(taskList);
             }
 
             @Override
@@ -106,5 +128,10 @@ public class MainPresenter implements MainContract.Presenter {
                 mView.onListEmpty();
             }
         });
+    }
+
+    @Override
+    public void detachView() {
+        this.mView = null;
     }
 }

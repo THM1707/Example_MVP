@@ -25,7 +25,10 @@ public class TaskRemoteDataSource implements TaskDataSource {
     }
 
     @Override
-    public void getTasks(Callbacks<Task> callbacks) {
-        callbacks.onEmptyList();
+    public void getTasks(Callbacks<Task> getTasksCallback) {
+    }
+
+    @Override
+    public void finishTask(int id, boolean isFinish, Callback<Integer> callback) {
     }
 }

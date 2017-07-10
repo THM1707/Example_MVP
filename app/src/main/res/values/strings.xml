@@ -8,4 +8,6 @@
     <string name="hint_message">Message</string>
     <string name="action_add">Add</string>
     <string name="action_cancel">Cancel</string>
+    <string name="action_update">Update</string>
+    <string name="msg_finish_fail">Fail to finish task</string>
 </resources>
